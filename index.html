@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SRE クイズ・ミリオネア</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <main class="stage">
+      <header class="hud" aria-label="プレイヤー情報">
+        <p class="player-name" id="player-name"></p>
+        <div class="prize-banner">
+          <span class="prize-amount" id="prize-amount"></span>
+        </div>
+        <nav class="lifelines" aria-label="ライフライン">
+          <button class="lifeline" id="lifeline-5050" type="button" aria-label="フィフティ・フィフティ：不正解を2つ消す">
+            <span class="lifeline-icon">50:50</span>
+          </button>
+          <button class="lifeline" id="lifeline-phone" type="button" aria-label="オンコール仲間に電話：ヒントをもらう">
+            <span class="lifeline-icon" aria-hidden="true">📟</span>
+          </button>
+          <button class="lifeline" id="lifeline-audience" type="button" aria-label="チームに聞く：投票結果を見る">
+            <span class="lifeline-icon" aria-hidden="true">👥</span>
+          </button>
+        </nav>
+      </header>
+
+      <div class="character-area" aria-hidden="true"></div>
+
+      <section class="quiz-dock" aria-label="出題">
+        <div class="question-row">
+          <div class="question-panel" id="question-panel">
+            <p class="question-text" id="question-text"></p>
+          </div>
+        </div>
+        <ul class="choices" id="choices" aria-label="選択肢"></ul>
+      </section>
+    </main>
+
+    <div class="overlay" id="start-screen">
+      <div class="overlay-card start-card">
+        <p class="subtitle">全15問。信頼性の番人になれるか？</p>
+        <input
+          class="name-input"
+          id="player-name-input"
+          type="text"
+          maxlength="12"
+          placeholder="プレイヤー名を入力"
+          aria-label="プレイヤー名"
+        />
+        <button class="primary-btn" id="start-btn" type="button">スタート</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="result-screen">
+      <div class="overlay-card">
+        <h1 class="title" id="result-title"></h1>
+        <p class="result-prize" id="result-prize"></p>
+        <button class="primary-btn" id="restart-btn" type="button">もう一度挑戦</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-card">
+        <h2 class="modal-title" id="modal-title"></h2>
+        <div class="modal-body" id="modal-body"></div>
+        <button class="primary-btn" id="modal-close" type="button">閉じる</button>
+      </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

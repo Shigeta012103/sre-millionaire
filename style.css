@@ -1,0 +1,550 @@
+:root {
+  --yellow: #f7d038;
+  --yellow-bright: #fff0a0;
+  --silver: #aebccb;
+  --silver-bright: #f2f6fa;
+  --chrome: linear-gradient(180deg, #f2f6fa 0%, #aebccb 36%, #4a5666 54%, #8c9bab 70%, #d6e0ea 100%);
+  --bg-glow: #1d4a8c;
+  --bg-mid: #081a38;
+  --bg-edge: #02060f;
+  --panel-from: #0c1a38;
+  --panel-to: #03070f;
+  --blue-banner-from: #2f7bd6;
+  --blue-banner-to: #0f4694;
+  --orange: #f5a623;
+  --green: #1faa4b;
+  --red: #d6243b;
+  --text: #ffffff;
+  --hex: polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%);
+  --hex-90: polygon(20px 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 20px 100%, 0 50%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  width: 100%;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg-edge) url("assets/mc-bear-landscape.png") center top / cover no-repeat fixed;
+  overflow-x: hidden;
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, transparent 45%, rgba(0, 0, 0, 0.78) 100%);
+  z-index: 1;
+}
+
+.stage {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 32px 40px;
+  overflow-x: clip;
+}
+
+.character-area {
+  flex: 1;
+  min-height: 180px;
+}
+
+/* ===== 右上 HUD ===== */
+.hud {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.player-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.prize-banner {
+  position: relative;
+  padding: 8px 46px;
+  background: transparent;
+  filter: drop-shadow(0 0 10px rgba(47, 123, 214, 0.5));
+}
+
+.prize-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: var(--chrome);
+  clip-path: var(--hex-90);
+}
+
+.prize-banner::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  background: linear-gradient(180deg, var(--blue-banner-from), var(--blue-banner-to));
+  clip-path: var(--hex-90);
+}
+
+.prize-amount {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--yellow-bright);
+}
+
+.lifelines {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.lifeline {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  background: linear-gradient(160deg, #1a4f96, #062349);
+  border: 2px solid var(--silver);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.lifeline:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 14px rgba(174, 188, 203, 0.7);
+}
+
+.lifeline-icon {
+  position: relative;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--silver-bright);
+}
+
+#lifeline-5050 .lifeline-icon {
+  font-size: 0.8rem;
+  letter-spacing: -0.03em;
+}
+
+.lifeline.used {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.lifeline.used .lifeline-icon::after {
+  content: "";
+  position: absolute;
+  left: -12px;
+  right: -12px;
+  top: 50%;
+  height: 3px;
+  background: var(--red);
+  transform: rotate(-18deg);
+}
+
+/* ===== 下部 出題エリア ===== */
+.quiz-dock {
+  width: 100%;
+}
+
+.question-row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+
+.question-row::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100vw;
+  height: 2px;
+  transform: translate(-50%, -50%);
+  z-index: -3;
+  background: var(--silver);
+}
+
+.question-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 24px 56px;
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: transparent;
+}
+
+.question-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: var(--chrome);
+  clip-path: var(--hex);
+}
+
+.question-panel::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  z-index: -1;
+  background: linear-gradient(160deg, var(--panel-from), var(--panel-to));
+  clip-path: var(--hex);
+}
+
+.question-text {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.choices {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 28px;
+  margin: 0 auto;
+}
+
+.choices > li {
+  position: relative;
+  display: flex;
+}
+
+.choices > li::before,
+.choices > li::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 100vw;
+  height: 2px;
+  transform: translateY(-50%);
+  z-index: -3;
+  pointer-events: none;
+}
+
+.choices > li::before {
+  right: 100%;
+  background: var(--silver);
+}
+
+.choices > li::after {
+  left: 100%;
+  background: var(--silver);
+}
+
+.choice {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 40px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+.choice::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: var(--chrome);
+  clip-path: var(--hex);
+}
+
+.choice::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  z-index: -1;
+  background: linear-gradient(160deg, var(--panel-from), var(--panel-to));
+  clip-path: var(--hex);
+}
+
+.choice:not(:disabled):hover {
+  transform: scale(1.02);
+}
+
+.choice .letter {
+  color: var(--yellow);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.choice .letter::before {
+  content: "◆";
+  margin-right: 12px;
+  font-size: 0.8em;
+  color: #5f7fa6;
+}
+
+.choice .letter::after {
+  content: ":";
+}
+
+.choice:disabled {
+  cursor: default;
+}
+
+.choice.hidden-choice {
+  visibility: hidden;
+}
+
+.choice.selected {
+  animation: pulse 0.6s ease-in-out infinite alternate;
+}
+
+.choice.selected::before {
+  background: linear-gradient(160deg, #c8801a, var(--orange));
+}
+
+.choice.correct::before {
+  background: linear-gradient(160deg, #0f7a35, var(--green));
+}
+
+.choice.wrong::before {
+  background: linear-gradient(160deg, #8c1424, var(--red));
+}
+
+@keyframes pulse {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.45); }
+}
+
+/* ===== オーバーレイ / モーダル ===== */
+.overlay,
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 23, 0.88);
+  backdrop-filter: blur(3px);
+}
+
+.overlay-card,
+.modal-card {
+  text-align: center;
+  padding: 44px 52px;
+  background: linear-gradient(160deg, var(--panel-from), var(--panel-to));
+  border: 3px solid var(--silver);
+  border-radius: 18px;
+  box-shadow: 0 0 40px rgba(47, 123, 214, 0.4);
+  max-width: 480px;
+  width: calc(100% - 40px);
+}
+
+#start-screen {
+  align-items: flex-end;
+  background: var(--bg-edge) url("assets/start-landscape.jpg") center / cover no-repeat;
+}
+
+.start-card {
+  margin-bottom: 6vh;
+  background: rgba(3, 9, 24, 0.55);
+  backdrop-filter: blur(4px);
+}
+
+.title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: var(--yellow-bright);
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 16px rgba(247, 208, 56, 0.45);
+}
+
+.title span {
+  display: block;
+  color: var(--text);
+}
+
+.subtitle {
+  margin: 16px 0 24px;
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+.name-input {
+  width: 100%;
+  margin-bottom: 24px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  color: var(--text);
+  background: rgba(8, 20, 44, 0.8);
+  border: 2px solid var(--silver);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.name-input::placeholder {
+  color: rgba(174, 188, 203, 0.7);
+}
+
+.name-input:focus {
+  outline: none;
+  box-shadow: 0 0 12px rgba(47, 123, 214, 0.7);
+}
+
+.result-prize {
+  margin: 18px 0 28px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--yellow-bright);
+}
+
+.primary-btn {
+  padding: 14px 40px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  background: linear-gradient(180deg, var(--blue-banner-from), var(--blue-banner-to));
+  border: 2px solid var(--silver);
+  border-radius: 40px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.primary-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 20px rgba(47, 123, 214, 0.7);
+}
+
+.modal-title {
+  color: var(--yellow-bright);
+  margin-bottom: 18px;
+}
+
+.modal-body {
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+
+.audience-bars {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 18px;
+  height: 180px;
+  margin-top: 8px;
+}
+
+.audience-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 56px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.audience-bar .bar {
+  width: 100%;
+  background: linear-gradient(180deg, #4a9bff, #0f4694);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.6s ease;
+}
+
+.audience-bar .bar-letter {
+  color: var(--yellow);
+  font-weight: 800;
+}
+
+.audience-bar .bar-pct {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  body {
+    background-image: url("assets/mc-bear-portrait.png");
+    background-attachment: scroll;
+  }
+  #start-screen {
+    background-image: url("assets/start-portrait.jpg");
+  }
+  .stage {
+    padding: 14px 14px 28px;
+  }
+  .hud {
+    top: 12px;
+    right: 14px;
+    gap: 8px;
+  }
+  .player-name {
+    font-size: 0.95rem;
+  }
+  .prize-banner {
+    padding: 6px 34px;
+  }
+  .prize-amount {
+    font-size: 1.1rem;
+  }
+  .lifelines {
+    gap: 10px;
+  }
+  .lifeline {
+    width: 46px;
+    height: 46px;
+  }
+  .character-area {
+    min-height: 120px;
+  }
+  .choices {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .question-panel {
+    padding: 18px 36px;
+    min-height: 76px;
+  }
+  .question-text {
+    font-size: 1.05rem;
+  }
+  .choice {
+    padding: 14px 32px;
+    font-size: 0.98rem;
+  }
+}
