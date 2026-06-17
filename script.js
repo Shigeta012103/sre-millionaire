@@ -31,6 +31,7 @@ const dom = {
 
 const state = {
   currentIndex: 0,
+  answerIndex: 0,
   locked: false,
   lifelines: { fiftyFifty: false, phone: false, audience: false },
 };
@@ -54,17 +55,31 @@ function updatePrizeBanner() {
   dom.prizeAmount.textContent = formatYen(securedAmount);
 }
 
+function buildShuffledChoices(question) {
+  const entries = question.choices.map((text, index) => ({
+    text,
+    isCorrect: index === question.answerIndex,
+  }));
+  for (let i = entries.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [entries[i], entries[j]] = [entries[j], entries[i]];
+  }
+  return entries;
+}
+
 function renderQuestion() {
   const question = QUIZ_QUESTIONS[state.currentIndex];
+  const entries = buildShuffledChoices(question);
+  state.answerIndex = entries.findIndex((entry) => entry.isCorrect);
   dom.questionText.textContent = question.text;
   dom.choices.innerHTML = "";
-  question.choices.forEach((choiceText, index) => {
+  entries.forEach((entry, index) => {
     const item = document.createElement("li");
     const button = document.createElement("button");
     button.type = "button";
     button.className = "choice";
     button.dataset.index = String(index);
-    button.innerHTML = `<span class="letter">${CHOICE_LABELS[index]}</span><span>${choiceText}</span>`;
+    button.innerHTML = `<span class="letter">${CHOICE_LABELS[index]}</span><span>${entry.text}</span>`;
     button.addEventListener("click", () => onChoiceClick(index));
     item.appendChild(button);
     dom.choices.appendChild(item);
@@ -87,7 +102,7 @@ function onChoiceClick(selectedIndex) {
 }
 
 function revealAnswer(selectedIndex, buttons) {
-  const answerIndex = QUIZ_QUESTIONS[state.currentIndex].answerIndex;
+  const answerIndex = state.answerIndex;
   const selectedButton = buttons[selectedIndex];
   selectedButton.classList.remove("selected");
   buttons[answerIndex].classList.add("correct");
@@ -120,7 +135,7 @@ function disableLifeline(button, key) {
 function useFiftyFifty() {
   if (state.lifelines.fiftyFifty || state.locked) return;
   disableLifeline(dom.fiftyFifty, "fiftyFifty");
-  const answerIndex = QUIZ_QUESTIONS[state.currentIndex].answerIndex;
+  const answerIndex = state.answerIndex;
   const wrongIndices = getChoiceButtons()
     .map((_, index) => index)
     .filter((index) => index !== answerIndex)
@@ -157,7 +172,7 @@ function buildAudienceVotes(answerIndex, questionIndex) {
 function useAudience() {
   if (state.lifelines.audience || state.locked) return;
   disableLifeline(dom.audience, "audience");
-  const answerIndex = QUIZ_QUESTIONS[state.currentIndex].answerIndex;
+  const answerIndex = state.answerIndex;
   const votes = buildAudienceVotes(answerIndex, state.currentIndex);
   const bars = votes
     .map(
