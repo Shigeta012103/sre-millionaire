@@ -29,6 +29,14 @@ html {
   overflow-x: hidden;
 }
 
+body.suspense {
+  background-image: url("assets/bear-suspense-landscape.png");
+}
+
+body.cheer {
+  background-image: url("assets/bear-correct-landscape.png");
+}
+
 body {
   min-height: 100vh;
   width: 100%;
@@ -501,6 +509,12 @@ body {
   body {
     background-image: url("assets/mc-bear-portrait.png");
     background-attachment: scroll;
+  }
+  body.suspense {
+    background-image: url("assets/bear-suspense-portrait.png");
+  }
+  body.cheer {
+    background-image: url("assets/bear-correct-portrait.png");
   }
   #start-screen {
     background-image: url("assets/start-portrait.jpg");

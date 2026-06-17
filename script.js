@@ -98,20 +98,24 @@ function onChoiceClick(selectedIndex) {
   buttons.forEach((button) => (button.disabled = true));
   const selectedButton = buttons[selectedIndex];
   selectedButton.classList.add("selected");
+  document.body.classList.add("suspense");
   setTimeout(() => revealAnswer(selectedIndex, buttons), SELECT_FLASH_MS);
 }
 
 function revealAnswer(selectedIndex, buttons) {
+  document.body.classList.remove("suspense");
   const answerIndex = state.answerIndex;
   const selectedButton = buttons[selectedIndex];
   selectedButton.classList.remove("selected");
   buttons[answerIndex].classList.add("correct");
   if (selectedIndex !== answerIndex) selectedButton.classList.add("wrong");
   const isCorrect = selectedIndex === answerIndex;
+  if (isCorrect) document.body.classList.add("cheer");
   setTimeout(() => advanceAfterReveal(isCorrect), REVEAL_HOLD_MS);
 }
 
 function advanceAfterReveal(isCorrect) {
+  document.body.classList.remove("cheer");
   if (!isCorrect) {
     finishGame(false);
     return;
@@ -213,6 +217,7 @@ function startGame() {
     button.classList.remove("used");
     button.disabled = false;
   });
+  document.body.classList.remove("suspense", "cheer");
   dom.startScreen.classList.add("hidden");
   dom.resultScreen.classList.add("hidden");
   renderQuestion();
