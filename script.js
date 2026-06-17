@@ -50,7 +50,8 @@ function lastClearedPrize() {
 }
 
 function updatePrizeBanner() {
-  dom.prizeAmount.textContent = formatYen(PRIZE_AMOUNTS[state.currentIndex]);
+  const securedAmount = state.currentIndex === 0 ? 0 : PRIZE_AMOUNTS[state.currentIndex - 1];
+  dom.prizeAmount.textContent = formatYen(securedAmount);
 }
 
 function renderQuestion() {
