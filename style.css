@@ -291,6 +291,70 @@ body.answering .mc-character.mood-suspense {
   bottom: -234px;
 }
 
+/* ===== 賞金表（正解後の演出） ===== */
+.ladder-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 23, 0.84);
+  backdrop-filter: blur(2px);
+}
+
+.ladder {
+  position: relative;
+  width: min(460px, 90vw);
+  padding: 6px 0;
+}
+
+.ladder-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.ladder-row {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 2.4ch 1fr;
+  align-items: center;
+  gap: 18px;
+  padding: 2px 24px;
+  font-weight: 800;
+  font-size: clamp(1rem, 4vw, 1.7rem);
+  line-height: 1.5;
+  color: var(--orange);
+  transition: color 0.5s ease;
+}
+
+.ladder-row.safety {
+  color: #ffffff;
+}
+
+.ladder-step {
+  text-align: right;
+}
+
+.ladder-row.is-current {
+  color: #1a1200;
+}
+
+.ladder-cursor {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 0;
+  height: 0;
+  z-index: 0;
+  background: linear-gradient(180deg, #f8b94e, #e88a24);
+  border-radius: 8px;
+  box-shadow: 0 0 16px rgba(245, 166, 35, 0.65);
+  transition: top 0.5s ease, height 0.5s ease;
+}
+
 /* ===== 右上 HUD ===== */
 .hud {
   position: absolute;

@@ -8,6 +8,9 @@ const CHOICES_START_DELAY_MS = 1000;
 const ANSWER_TIME_SEC = 15;
 const TIMER_WARNING_SEC = 5;
 const ANSWERING_RELEASE_MS = 1000;
+const LADDER_HOLD_BEFORE_MS = 900;
+const LADDER_MOVE_MS = 500;
+const LADDER_HOLD_AFTER_MS = 800;
 const YEN_UNIT = 10000;
 const BASE_AUDIENCE_BIAS = 70;
 const BIAS_DECAY_PER_QUESTION = 2.5;
@@ -23,6 +26,9 @@ const dom = {
   timer: document.getElementById("timer"),
   timerNum: document.getElementById("timer-num"),
   timerProgress: document.getElementById("timer-progress"),
+  ladderOverlay: document.getElementById("ladder-overlay"),
+  ladderList: document.getElementById("ladder-list"),
+  ladderCursor: document.getElementById("ladder-cursor"),
   characters: document.querySelectorAll(".mc-character"),
   // デバッグ用（再有効化する場合は下記2行を戻す）
   // debugLabel: document.getElementById("debug-label"),
@@ -230,6 +236,46 @@ function revealAnswer(selectedIndex, buttons) {
   setTimeout(() => advanceAfterReveal(isCorrect), REVEAL_HOLD_MS);
 }
 
+function buildLadder() {
+  dom.ladderList.innerHTML = "";
+  for (let index = PRIZE_AMOUNTS.length - 1; index >= 0; index -= 1) {
+    const row = document.createElement("li");
+    row.className = "ladder-row";
+    if (SAFETY_LINE_INDICES.includes(index)) row.classList.add("safety");
+    row.innerHTML = `<span class="ladder-step">${index + 1}</span><span class="ladder-amount">${formatYen(PRIZE_AMOUNTS[index])}</span>`;
+    dom.ladderList.appendChild(row);
+  }
+}
+
+function ladderRowAt(prizeIndex) {
+  const rows = dom.ladderList.querySelectorAll(".ladder-row");
+  return rows[PRIZE_AMOUNTS.length - 1 - prizeIndex];
+}
+
+function moveLadderCursor(row, animate) {
+  dom.ladderCursor.style.transitionDuration = animate ? "" : "0s";
+  dom.ladderCursor.style.top = `${row.offsetTop}px`;
+  dom.ladderCursor.style.height = `${row.offsetHeight}px`;
+}
+
+function showLadderTransition(fromIndex, toIndex, done) {
+  buildLadder();
+  dom.ladderOverlay.classList.remove("hidden");
+  const fromRow = ladderRowAt(fromIndex);
+  const toRow = ladderRowAt(toIndex);
+  moveLadderCursor(fromRow, false);
+  fromRow.classList.add("is-current");
+  setTimeout(() => {
+    fromRow.classList.remove("is-current");
+    toRow.classList.add("is-current");
+    moveLadderCursor(toRow, true);
+    setTimeout(() => {
+      dom.ladderOverlay.classList.add("hidden");
+      done();
+    }, LADDER_MOVE_MS + LADDER_HOLD_AFTER_MS);
+  }, LADDER_HOLD_BEFORE_MS);
+}
+
 function advanceAfterReveal(isCorrect) {
   if (!isCorrect) {
     finishGame(false);
@@ -240,9 +286,9 @@ function advanceAfterReveal(isCorrect) {
     finishGame(true);
     return;
   }
+  const wonIndex = state.currentIndex;
   state.currentIndex += 1;
-  state.locked = false;
-  renderQuestion();
+  showLadderTransition(wonIndex, state.currentIndex, renderQuestion);
 }
 
 function disableLifeline(button, key) {
@@ -326,6 +372,7 @@ function finishGame(isWinner) {
 function startGame() {
   stopTimer();
   document.body.classList.remove("answering", "dimmed");
+  dom.ladderOverlay.classList.add("hidden");
   state.currentIndex = 0;
   state.locked = false;
   state.lifelines = { fiftyFifty: false, phone: false, audience: false };
