@@ -5,6 +5,8 @@ const QUESTION_NUMBER_ANIM_MS = 2000;
 const TYPE_CHAR_MS = 90;
 const CHOICE_REVEAL_MS = 1000;
 const CHOICES_START_DELAY_MS = 1000;
+const ANSWER_TIME_SEC = 15;
+const TIMER_WARNING_SEC = 5;
 const YEN_UNIT = 10000;
 const BASE_AUDIENCE_BIAS = 70;
 const BIAS_DECAY_PER_QUESTION = 2.5;
@@ -24,6 +26,9 @@ const dom = {
   questionNumber: document.getElementById("question-number"),
   questionNumberText: document.getElementById("question-number-text"),
   choices: document.getElementById("choices"),
+  timer: document.getElementById("timer"),
+  timerNum: document.getElementById("timer-num"),
+  timerProgress: document.getElementById("timer-progress"),
   character: document.getElementById("mc-character"),
   // デバッグ用（再有効化する場合は下記2行を戻す）
   // debugLabel: document.getElementById("debug-label"),
@@ -52,6 +57,8 @@ const state = {
   locked: false,
   lifelines: { fiftyFifty: false, phone: false, audience: false },
 };
+
+let timerIntervalId = null;
 
 function formatPrize(amount) {
   return `${(amount / YEN_UNIT).toLocaleString("ja-JP")}万円`;
@@ -153,6 +160,7 @@ function renderQuestion() {
       setTimeout(() => {
         revealChoices(() => {
           state.locked = false;
+          startTimer();
         });
       }, CHOICES_START_DELAY_MS);
     });
@@ -163,8 +171,43 @@ function getChoiceButtons() {
   return Array.from(dom.choices.querySelectorAll(".choice"));
 }
 
+function startTimer() {
+  let remaining = ANSWER_TIME_SEC;
+  dom.timerNum.textContent = String(remaining);
+  dom.timer.classList.remove("warning");
+  dom.timer.classList.add("active");
+  dom.timerProgress.classList.remove("run");
+  void dom.timerProgress.offsetWidth;
+  dom.timerProgress.classList.add("run");
+  timerIntervalId = setInterval(() => {
+    remaining -= 1;
+    dom.timerNum.textContent = String(Math.max(0, remaining));
+    if (remaining <= TIMER_WARNING_SEC) dom.timer.classList.add("warning");
+    if (remaining <= 0) handleTimeout();
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerIntervalId !== null) {
+    clearInterval(timerIntervalId);
+    timerIntervalId = null;
+  }
+  dom.timer.classList.remove("active");
+}
+
+function handleTimeout() {
+  stopTimer();
+  state.locked = true;
+  const buttons = getChoiceButtons();
+  buttons.forEach((button) => (button.disabled = true));
+  buttons[state.answerIndex].classList.add("correct");
+  setCharacter("wrong");
+  setTimeout(() => finishGame(false), REVEAL_HOLD_MS);
+}
+
 function onChoiceClick(selectedIndex) {
   if (state.locked) return;
+  stopTimer();
   state.locked = true;
   const buttons = getChoiceButtons();
   buttons.forEach((button) => (button.disabled = true));
@@ -279,6 +322,7 @@ function finishGame(isWinner) {
 }
 
 function startGame() {
+  stopTimer();
   state.currentIndex = 0;
   state.locked = false;
   state.lifelines = { fiftyFifty: false, phone: false, audience: false };

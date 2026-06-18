@@ -28,6 +28,14 @@
         <span class="question-number-text" id="question-number-text"></span>
       </div>
 
+      <div class="timer" id="timer" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <circle class="timer-track" cx="50" cy="50" r="45" />
+          <circle class="timer-progress" id="timer-progress" cx="50" cy="50" r="45" />
+        </svg>
+        <span class="timer-num" id="timer-num">15</span>
+      </div>
+
       <header class="hud" aria-label="プレイヤー情報">
         <p class="player-name" id="player-name"></p>
         <div class="prize-banner">
@@ -38,7 +46,7 @@
             <span class="lifeline-icon">50:50</span>
           </button>
           <button class="lifeline" id="lifeline-phone" type="button" aria-label="オンコール仲間に電話：ヒントをもらう">
-            <span class="lifeline-icon" aria-hidden="true">📟</span>
+            <span class="lifeline-icon" aria-hidden="true">📞</span>
           </button>
           <button class="lifeline" id="lifeline-audience" type="button" aria-label="チームに聞く：投票結果を見る">
             <span class="lifeline-icon" aria-hidden="true">👥</span>

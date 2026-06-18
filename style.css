@@ -72,6 +72,77 @@ body {
   min-height: 0;
 }
 
+/* 解答タイマー（左上） */
+.timer {
+  position: fixed;
+  top: 16px;
+  left: 18px;
+  z-index: 6;
+  width: 78px;
+  height: 78px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.timer.active {
+  opacity: 1;
+}
+
+.timer svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.timer-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 8;
+}
+
+.timer-progress {
+  fill: none;
+  stroke: var(--yellow);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 282.743;
+  stroke-dashoffset: 0;
+}
+
+.timer.active .timer-progress.run {
+  animation: timer-deplete 15s linear forwards;
+}
+
+.timer-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.timer.warning .timer-progress {
+  stroke: var(--red);
+}
+
+.timer.warning .timer-num {
+  color: var(--red);
+}
+
+@keyframes timer-deplete {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -282.743px;
+  }
+}
+
 /* 第○問 スイープ表示 */
 .question-number {
   position: absolute;
@@ -178,7 +249,9 @@ body {
 
 .prize-banner {
   position: relative;
+  min-width: 240px;
   padding: 8px 46px;
+  text-align: center;
   background: transparent;
   filter: drop-shadow(0 0 10px rgba(47, 123, 214, 0.5));
 }
@@ -209,7 +282,8 @@ body {
 
 .lifelines {
   display: flex;
-  gap: 12px;
+  justify-content: space-between;
+  width: 240px;
   margin-top: 4px;
 }
 
@@ -218,8 +292,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 54px;
-  height: 54px;
+  width: 71px;
+  height: 49px;
   padding: 0;
   background: linear-gradient(160deg, #1a4f96, #062349);
   border: 2px solid var(--silver);
@@ -235,13 +309,13 @@ body {
 
 .lifeline-icon {
   position: relative;
-  font-size: 1.05rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: var(--silver-bright);
 }
 
 #lifeline-5050 .lifeline-icon {
-  font-size: 0.8rem;
+  font-size: 0.98rem;
   letter-spacing: -0.03em;
 }
 
@@ -669,17 +743,18 @@ body {
     font-size: 0.95rem;
   }
   .prize-banner {
+    min-width: 185px;
     padding: 6px 34px;
   }
   .prize-amount {
     font-size: 1.1rem;
   }
   .lifelines {
-    gap: 10px;
+    width: 183px;
   }
   .lifeline {
-    width: 46px;
-    height: 46px;
+    width: 54px;
+    height: 38px;
   }
   .character-area {
     min-height: 120px;
