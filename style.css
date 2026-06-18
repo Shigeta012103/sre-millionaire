@@ -1,3 +1,12 @@
+@font-face {
+  font-family: "Noto Sans JP";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/fonts/NotoSansJP-Bold-subset.woff2") format("woff2");
+  unicode-range: U+30-39, U+554f, U+7b2c, U+ff10-ff19;
+}
+
 :root {
   --yellow: #f7d038;
   --yellow-bright: #fff0a0;
@@ -61,6 +70,61 @@ body {
 .character-area {
   flex: 1;
   min-height: 0;
+}
+
+/* 第○問 スイープ表示 */
+.question-number {
+  position: absolute;
+  top: 38%;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.question-number-text {
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: clamp(2.6rem, 8vw, 5rem);
+  font-weight: 700;
+  color: #1b73e8;
+  -webkit-text-stroke: 6px #ffffff;
+  paint-order: stroke fill;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.question-number.play .question-number-text {
+  animation: qnum-sweep 2s ease-in-out forwards;
+}
+
+@keyframes qnum-sweep {
+  0% {
+    transform: translateX(110vw);
+    opacity: 0;
+  }
+  20% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  65% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-110vw);
+    opacity: 0;
+  }
+}
+
+/* 出題演出: 枠は出したまま、中のテキストだけ表示前は隠す */
+.choice.pre-reveal {
+  pointer-events: none;
+}
+
+.choice.pre-reveal > span {
+  opacity: 0;
 }
 
 .mc-character {

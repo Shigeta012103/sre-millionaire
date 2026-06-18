@@ -1,6 +1,10 @@
 const CHOICE_LABELS = ["A", "B", "C", "D"];
 const SELECT_FLASH_MS = 1400;
 const REVEAL_HOLD_MS = 1600;
+const QUESTION_NUMBER_ANIM_MS = 2000;
+const TYPE_CHAR_MS = 90;
+const CHOICE_REVEAL_MS = 1000;
+const CHOICES_START_DELAY_MS = 1000;
 const YEN_UNIT = 10000;
 const BASE_AUDIENCE_BIAS = 70;
 const BIAS_DECAY_PER_QUESTION = 2.5;
@@ -17,6 +21,8 @@ const CHARACTER_IMAGES = {
 
 const dom = {
   questionText: document.getElementById("question-text"),
+  questionNumber: document.getElementById("question-number"),
+  questionNumberText: document.getElementById("question-number-text"),
   choices: document.getElementById("choices"),
   character: document.getElementById("mc-character"),
   // デバッグ用（再有効化する場合は下記2行を戻す）
@@ -85,25 +91,72 @@ function buildShuffledChoices(question) {
   return entries;
 }
 
-function renderQuestion() {
-  setCharacter("neutral");
-  const question = QUIZ_QUESTIONS[state.currentIndex];
-  const entries = buildShuffledChoices(question);
-  state.answerIndex = entries.findIndex((entry) => entry.isCorrect);
-  dom.questionText.textContent = question.text;
+function buildChoiceButtons(entries) {
   dom.choices.innerHTML = "";
   entries.forEach((entry, index) => {
     const item = document.createElement("li");
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "choice";
+    button.className = "choice pre-reveal";
+    button.disabled = true;
     button.dataset.index = String(index);
     button.innerHTML = `<span class="letter">${CHOICE_LABELS[index]}</span><span>${entry.text}</span>`;
     button.addEventListener("click", () => onChoiceClick(index));
     item.appendChild(button);
     dom.choices.appendChild(item);
   });
+}
+
+function playQuestionNumber(done) {
+  dom.questionNumberText.textContent = `第${state.currentIndex + 1}問`;
+  dom.questionNumber.classList.remove("play");
+  void dom.questionNumber.offsetWidth;
+  dom.questionNumber.classList.add("play");
+  setTimeout(done, QUESTION_NUMBER_ANIM_MS);
+}
+
+function typeQuestionText(text, done) {
+  dom.questionText.textContent = "";
+  let count = 0;
+  const timer = setInterval(() => {
+    count += 1;
+    dom.questionText.textContent = text.slice(0, count);
+    if (count >= text.length) {
+      clearInterval(timer);
+      done();
+    }
+  }, TYPE_CHAR_MS);
+}
+
+function revealChoices(done) {
+  const buttons = getChoiceButtons();
+  buttons.forEach((button, index) => {
+    setTimeout(() => {
+      button.classList.remove("pre-reveal");
+      button.disabled = false;
+      if (index === buttons.length - 1) done();
+    }, index * CHOICE_REVEAL_MS);
+  });
+}
+
+function renderQuestion() {
+  state.locked = true;
+  setCharacter("neutral");
+  const question = QUIZ_QUESTIONS[state.currentIndex];
+  const entries = buildShuffledChoices(question);
+  state.answerIndex = entries.findIndex((entry) => entry.isCorrect);
+  dom.questionText.textContent = "";
+  buildChoiceButtons(entries);
   updatePrizeBanner();
+  playQuestionNumber(() => {
+    typeQuestionText(question.text, () => {
+      setTimeout(() => {
+        revealChoices(() => {
+          state.locked = false;
+        });
+      }, CHOICES_START_DELAY_MS);
+    });
+  });
 }
 
 function getChoiceButtons() {
