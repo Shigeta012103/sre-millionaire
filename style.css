@@ -304,6 +304,8 @@ body.answering .mc-character.mood-suspense {
 }
 
 .player-name {
+  width: 240px;
+  text-align: center;
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -826,6 +828,7 @@ body.answering .mc-character.mood-suspense {
     gap: 8px;
   }
   .player-name {
+    width: 185px;
     font-size: 0.95rem;
   }
   .prize-banner {
