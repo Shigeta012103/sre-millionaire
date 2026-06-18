@@ -560,8 +560,23 @@ body.answering .mc-character.mood-suspense {
   cursor: default;
 }
 
-.choice.hidden-choice {
-  visibility: hidden;
+.choice.eliminated {
+  cursor: default;
+}
+
+.choice.eliminated > span {
+  opacity: 0.28;
+}
+
+.choice.eliminated::before {
+  background: linear-gradient(
+      112deg,
+      transparent calc(50% - 2px),
+      var(--red) calc(50% - 2px),
+      var(--red) calc(50% + 2px),
+      transparent calc(50% + 2px)
+    ),
+    linear-gradient(160deg, #2a2f3a, #12151c);
 }
 
 .choice.selected {

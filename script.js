@@ -262,7 +262,7 @@ function useFiftyFifty() {
     .slice(0, 2);
   const buttons = getChoiceButtons();
   wrongIndices.forEach((index) => {
-    buttons[index].classList.add("hidden-choice");
+    buttons[index].classList.add("eliminated");
     buttons[index].disabled = true;
   });
 }
