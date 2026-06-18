@@ -29,21 +29,13 @@ html {
   overflow-x: hidden;
 }
 
-body.suspense {
-  background-image: url("assets/bear-suspense-landscape.png");
-}
-
-body.cheer {
-  background-image: url("assets/bear-correct-landscape.png");
-}
-
 body {
   min-height: 100vh;
   width: 100%;
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Segoe UI", system-ui, sans-serif;
   color: var(--text);
-  background: var(--bg-edge) url("assets/mc-bear-landscape.png") center top / cover no-repeat fixed;
-  overflow-x: hidden;
+  background: var(--bg-edge) url("assets/stage-landscape.jpg") center / cover no-repeat fixed;
+  overflow: hidden;
 }
 
 .vignette {
@@ -57,17 +49,48 @@ body {
 .stage {
   position: relative;
   z-index: 2;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   padding: 24px 32px 40px;
-  overflow-x: clip;
+  overflow: clip;
 }
 
 .character-area {
   flex: 1;
-  min-height: 180px;
+  min-height: 0;
+}
+
+.mc-character {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  z-index: -4;
+  pointer-events: none;
+}
+
+/* 状態ごとに高さ・位置(bottom)を個別調整 */
+.mc-character.mood-neutral {
+  height: 124vh;
+  bottom: -255px;
+}
+
+.mc-character.mood-suspense {
+  height: 124vh;
+  bottom: -255px;
+}
+
+.mc-character.mood-cheer {
+  height: 132vh;
+  bottom: -342px;
+}
+
+.mc-character.mood-wrong {
+  height: 124vh;
+  bottom: -165px;
 }
 
 /* ===== 右上 HUD ===== */
@@ -505,16 +528,67 @@ body {
   display: none !important;
 }
 
+/* デバッグ用: 状態表示＋手動切替（再有効化する場合は下記コメントを外し、index.html と script.js の対応箇所も戻す）
+.debug-state {
+  position: fixed;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--yellow);
+  border-radius: 8px;
+}
+
+.debug-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.debug-buttons button {
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(47, 123, 214, 0.6);
+  border: 1px solid var(--silver);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.debug-buttons button:hover {
+  background: rgba(47, 123, 214, 0.95);
+}
+*/
+
 @media (max-width: 760px) {
+  .mc-character.mood-neutral {
+    height: 82vh;
+    bottom: 8vh;
+  }
+  .mc-character.mood-suspense {
+    height: 74vh;
+    bottom: 15vh;
+  }
+  .mc-character.mood-cheer {
+    height: 82vh;
+    bottom: 8vh;
+  }
+  .mc-character.mood-wrong {
+    height: 73vh;
+    bottom: 20vh;
+  }
   body {
-    background-image: url("assets/mc-bear-portrait.png");
+    background-image: url("assets/stage-portrait.jpg");
     background-attachment: scroll;
-  }
-  body.suspense {
-    background-image: url("assets/bear-suspense-portrait.png");
-  }
-  body.cheer {
-    background-image: url("assets/bear-correct-portrait.png");
   }
   #start-screen {
     background-image: url("assets/start-portrait.jpg");

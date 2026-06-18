@@ -8,9 +8,20 @@ const MIN_CORRECT_BIAS = 35;
 
 const DEFAULT_PLAYER_NAME = "挑戦者";
 
+const CHARACTER_IMAGES = {
+  neutral: "assets/bear-neutral.png",
+  suspense: "assets/bear-sweat.png",
+  cheer: "assets/bear-happy.png",
+  wrong: "assets/bear-sad.png",
+};
+
 const dom = {
   questionText: document.getElementById("question-text"),
   choices: document.getElementById("choices"),
+  character: document.getElementById("mc-character"),
+  // デバッグ用（再有効化する場合は下記2行を戻す）
+  // debugLabel: document.getElementById("debug-label"),
+  // debugButtons: document.getElementById("debug-buttons"),
   prizeAmount: document.getElementById("prize-amount"),
   playerName: document.getElementById("player-name"),
   nameInput: document.getElementById("player-name-input"),
@@ -44,6 +55,13 @@ function formatYen(amount) {
   return `¥${amount.toLocaleString("ja-JP")}`;
 }
 
+function setCharacter(mood) {
+  dom.character.src = CHARACTER_IMAGES[mood];
+  dom.character.className = `mc-character mood-${mood}`;
+  // デバッグ用（再有効化する場合は下記1行を戻す）
+  // dom.debugLabel.textContent = `状態: ${mood} / Q${state.currentIndex + 1}`;
+}
+
 function lastClearedPrize() {
   const reachedSafety = SAFETY_LINE_INDICES.filter((index) => index < state.currentIndex);
   if (reachedSafety.length === 0) return 0;
@@ -68,6 +86,7 @@ function buildShuffledChoices(question) {
 }
 
 function renderQuestion() {
+  setCharacter("neutral");
   const question = QUIZ_QUESTIONS[state.currentIndex];
   const entries = buildShuffledChoices(question);
   state.answerIndex = entries.findIndex((entry) => entry.isCorrect);
@@ -98,24 +117,22 @@ function onChoiceClick(selectedIndex) {
   buttons.forEach((button) => (button.disabled = true));
   const selectedButton = buttons[selectedIndex];
   selectedButton.classList.add("selected");
-  document.body.classList.add("suspense");
+  setCharacter("suspense");
   setTimeout(() => revealAnswer(selectedIndex, buttons), SELECT_FLASH_MS);
 }
 
 function revealAnswer(selectedIndex, buttons) {
-  document.body.classList.remove("suspense");
   const answerIndex = state.answerIndex;
   const selectedButton = buttons[selectedIndex];
   selectedButton.classList.remove("selected");
   buttons[answerIndex].classList.add("correct");
   if (selectedIndex !== answerIndex) selectedButton.classList.add("wrong");
   const isCorrect = selectedIndex === answerIndex;
-  if (isCorrect) document.body.classList.add("cheer");
+  setCharacter(isCorrect ? "cheer" : "wrong");
   setTimeout(() => advanceAfterReveal(isCorrect), REVEAL_HOLD_MS);
 }
 
 function advanceAfterReveal(isCorrect) {
-  document.body.classList.remove("cheer");
   if (!isCorrect) {
     finishGame(false);
     return;
@@ -217,7 +234,6 @@ function startGame() {
     button.classList.remove("used");
     button.disabled = false;
   });
-  document.body.classList.remove("suspense", "cheer");
   dom.startScreen.classList.add("hidden");
   dom.resultScreen.classList.add("hidden");
   renderQuestion();
@@ -229,3 +245,9 @@ dom.fiftyFifty.addEventListener("click", useFiftyFifty);
 dom.phone.addEventListener("click", usePhone);
 dom.audience.addEventListener("click", useAudience);
 dom.modalClose.addEventListener("click", closeModal);
+
+// デバッグ用（再有効化する場合は下記ブロックを戻す）
+// dom.debugButtons.addEventListener("click", (event) => {
+//   const mood = event.target.dataset.mood;
+//   if (mood) setCharacter(mood);
+// });
