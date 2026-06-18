@@ -8,6 +8,7 @@
   </head>
   <body>
     <div class="vignette" aria-hidden="true"></div>
+    <div class="answer-dim" id="answer-dim" aria-hidden="true"></div>
 
     <!-- デバッグ用（再有効化する場合はこのコメントを外し、style.css と script.js の対応箇所も戻す）
     <div class="debug-state" id="debug-state">
@@ -22,7 +23,10 @@
     -->
 
     <main class="stage">
-      <img class="mc-character mood-neutral" id="mc-character" src="assets/bear-neutral.png" alt="" aria-hidden="true" />
+      <img class="mc-character mood-neutral is-active" data-mood="neutral" src="assets/bear-neutral.png" alt="" aria-hidden="true" />
+      <img class="mc-character mood-suspense" data-mood="suspense" src="assets/bear-sweat.png" alt="" aria-hidden="true" />
+      <img class="mc-character mood-cheer" data-mood="cheer" src="assets/bear-happy.png" alt="" aria-hidden="true" />
+      <img class="mc-character mood-wrong" data-mood="wrong" src="assets/bear-sad.png" alt="" aria-hidden="true" />
 
       <div class="question-number" id="question-number" aria-hidden="true">
         <span class="question-number-text" id="question-number-text"></span>

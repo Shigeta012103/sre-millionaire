@@ -12,7 +12,14 @@
   --yellow-bright: #fff0a0;
   --silver: #aebccb;
   --silver-bright: #f2f6fa;
-  --chrome: linear-gradient(180deg, #f2f6fa 0%, #aebccb 36%, #4a5666 54%, #8c9bab 70%, #d6e0ea 100%);
+  --chrome: linear-gradient(
+    180deg,
+    #f2f6fa 0%,
+    #aebccb 36%,
+    #4a5666 54%,
+    #8c9bab 70%,
+    #d6e0ea 100%
+  );
   --bg-glow: #1d4a8c;
   --bg-mid: #081a38;
   --bg-edge: #02060f;
@@ -25,7 +32,14 @@
   --red: #d6243b;
   --text: #ffffff;
   --hex: polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%);
-  --hex-90: polygon(20px 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 20px 100%, 0 50%);
+  --hex-90: polygon(
+    20px 0,
+    calc(100% - 20px) 0,
+    100% 50%,
+    calc(100% - 20px) 100%,
+    20px 100%,
+    0 50%
+  );
 }
 
 * {
@@ -41,9 +55,11 @@ html {
 body {
   min-height: 100vh;
   width: 100%;
-  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Segoe UI", system-ui, sans-serif;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Segoe UI", system-ui,
+    sans-serif;
   color: var(--text);
-  background: var(--bg-edge) url("assets/stage-landscape.jpg") center / cover no-repeat fixed;
+  background: var(--bg-edge) url("assets/stage-landscape.jpg") center / cover
+    no-repeat fixed;
   overflow: hidden;
 }
 
@@ -51,8 +67,28 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 40%, transparent 45%, rgba(0, 0, 0, 0.78) 100%);
+  background: radial-gradient(
+    circle at 50% 40%,
+    transparent 45%,
+    rgba(0, 0, 0, 0.78) 100%
+  );
   z-index: 1;
+}
+
+/* 解答選択中: 背景だけを薄暗くする暗幕（クマより背面） */
+.answer-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.78);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+body.dimmed .answer-dim {
+  opacity: 1;
+  transition: opacity 5s ease-in;
 }
 
 .stage {
@@ -202,9 +238,36 @@ body {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  transform-origin: center bottom;
   width: auto;
   z-index: -4;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+/* 表示中のクマだけ不透明（src差し替えなしでちらつき防止） */
+.mc-character.is-active {
+  opacity: 1;
+}
+
+/* 解答選択中: suspense のクマがゆっくりズームイン
+   発火条件を answering だけにする（is-active を外すと cheer 切替時に
+   アニメが消えて一瞬縮むため）。answering が外れるのは cheer 表示の
+   ANSWERING_RELEASE_MS 後なので、その頃には suspense は既にフェードアウト済み。 */
+body.answering .mc-character.mood-suspense {
+  animation: bear-zoom 5s ease-out forwards;
+}
+
+@keyframes bear-zoom {
+  from {
+    height: 115vh;
+    bottom: -187px;
+  }
+  to {
+    height: 147vh;
+    bottom: -457px;
+  }
 }
 
 /* 状態ごとに高さ・位置(bottom)を個別調整 */
@@ -214,18 +277,18 @@ body {
 }
 
 .mc-character.mood-suspense {
-  height: 124vh;
-  bottom: -255px;
+  height: 115vh;
+  bottom: -187px;
 }
 
 .mc-character.mood-cheer {
-  height: 132vh;
-  bottom: -342px;
+  height: 158vh;
+  bottom: -574px;
 }
 
 .mc-character.mood-wrong {
-  height: 124vh;
-  bottom: -165px;
+  height: 133vh;
+  bottom: -234px;
 }
 
 /* ===== 右上 HUD ===== */
@@ -270,7 +333,11 @@ body {
   position: absolute;
   inset: 2px;
   z-index: -1;
-  background: linear-gradient(180deg, var(--blue-banner-from), var(--blue-banner-to));
+  background: linear-gradient(
+    180deg,
+    var(--blue-banner-from),
+    var(--blue-banner-to)
+  );
   clip-path: var(--hex-90);
 }
 
@@ -512,8 +579,12 @@ body {
 }
 
 @keyframes pulse {
-  from { filter: brightness(1); }
-  to { filter: brightness(1.45); }
+  from {
+    filter: brightness(1);
+  }
+  to {
+    filter: brightness(1.45);
+  }
 }
 
 /* ===== オーバーレイ / モーダル ===== */
@@ -543,7 +614,8 @@ body {
 
 #start-screen {
   align-items: flex-end;
-  background: var(--bg-edge) url("assets/start-landscape.jpg") center / cover no-repeat;
+  background: var(--bg-edge) url("assets/start-landscape.jpg") center / cover
+    no-repeat;
 }
 
 .start-card {
@@ -604,7 +676,11 @@ body {
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--text);
-  background: linear-gradient(180deg, var(--blue-banner-from), var(--blue-banner-to));
+  background: linear-gradient(
+    180deg,
+    var(--blue-banner-from),
+    var(--blue-banner-to)
+  );
   border: 2px solid var(--silver);
   border-radius: 40px;
   cursor: pointer;
@@ -713,16 +789,26 @@ body {
     bottom: 8vh;
   }
   .mc-character.mood-suspense {
-    height: 74vh;
-    bottom: 15vh;
+    height: 90vh;
+    bottom: 1vh;
+  }
+  @keyframes bear-zoom {
+    from {
+      height: 74vh;
+      bottom: 14vh;
+    }
+    to {
+      height: 90vh;
+      bottom: 1vh;
+    }
   }
   .mc-character.mood-cheer {
-    height: 82vh;
-    bottom: 8vh;
+    height: 98vh;
+    bottom: -7vh;
   }
   .mc-character.mood-wrong {
-    height: 73vh;
-    bottom: 20vh;
+    height: 85vh;
+    bottom: 13vh;
   }
   body {
     background-image: url("assets/stage-portrait.jpg");

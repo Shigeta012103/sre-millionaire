@@ -1,5 +1,5 @@
 const CHOICE_LABELS = ["A", "B", "C", "D"];
-const SELECT_FLASH_MS = 1400;
+const SELECT_FLASH_MS = 5000;
 const REVEAL_HOLD_MS = 1600;
 const QUESTION_NUMBER_ANIM_MS = 2000;
 const TYPE_CHAR_MS = 90;
@@ -7,19 +7,13 @@ const CHOICE_REVEAL_MS = 1000;
 const CHOICES_START_DELAY_MS = 1000;
 const ANSWER_TIME_SEC = 15;
 const TIMER_WARNING_SEC = 5;
+const ANSWERING_RELEASE_MS = 1000;
 const YEN_UNIT = 10000;
 const BASE_AUDIENCE_BIAS = 70;
 const BIAS_DECAY_PER_QUESTION = 2.5;
 const MIN_CORRECT_BIAS = 35;
 
 const DEFAULT_PLAYER_NAME = "挑戦者";
-
-const CHARACTER_IMAGES = {
-  neutral: "assets/bear-neutral.png",
-  suspense: "assets/bear-sweat.png",
-  cheer: "assets/bear-happy.png",
-  wrong: "assets/bear-sad.png",
-};
 
 const dom = {
   questionText: document.getElementById("question-text"),
@@ -29,7 +23,7 @@ const dom = {
   timer: document.getElementById("timer"),
   timerNum: document.getElementById("timer-num"),
   timerProgress: document.getElementById("timer-progress"),
-  character: document.getElementById("mc-character"),
+  characters: document.querySelectorAll(".mc-character"),
   // デバッグ用（再有効化する場合は下記2行を戻す）
   // debugLabel: document.getElementById("debug-label"),
   // debugButtons: document.getElementById("debug-buttons"),
@@ -60,6 +54,9 @@ const state = {
 
 let timerIntervalId = null;
 
+// デバッグUIが存在する間はカウントダウンを止める
+const DEBUG_MODE = Boolean(dom.debugButtons);
+
 function formatPrize(amount) {
   return `${(amount / YEN_UNIT).toLocaleString("ja-JP")}万円`;
 }
@@ -69,8 +66,9 @@ function formatYen(amount) {
 }
 
 function setCharacter(mood) {
-  dom.character.src = CHARACTER_IMAGES[mood];
-  dom.character.className = `mc-character mood-${mood}`;
+  dom.characters.forEach((img) => {
+    img.classList.toggle("is-active", img.dataset.mood === mood);
+  });
   // デバッグ用（再有効化する場合は下記1行を戻す）
   // dom.debugLabel.textContent = `状態: ${mood} / Q${state.currentIndex + 1}`;
 }
@@ -172,6 +170,7 @@ function getChoiceButtons() {
 }
 
 function startTimer() {
+  if (DEBUG_MODE) return;
   let remaining = ANSWER_TIME_SEC;
   dom.timerNum.textContent = String(remaining);
   dom.timer.classList.remove("warning");
@@ -214,6 +213,7 @@ function onChoiceClick(selectedIndex) {
   const selectedButton = buttons[selectedIndex];
   selectedButton.classList.add("selected");
   setCharacter("suspense");
+  document.body.classList.add("answering", "dimmed");
   setTimeout(() => revealAnswer(selectedIndex, buttons), SELECT_FLASH_MS);
 }
 
@@ -225,6 +225,8 @@ function revealAnswer(selectedIndex, buttons) {
   if (selectedIndex !== answerIndex) selectedButton.classList.add("wrong");
   const isCorrect = selectedIndex === answerIndex;
   setCharacter(isCorrect ? "cheer" : "wrong");
+  document.body.classList.remove("dimmed");
+  setTimeout(() => document.body.classList.remove("answering"), ANSWERING_RELEASE_MS);
   setTimeout(() => advanceAfterReveal(isCorrect), REVEAL_HOLD_MS);
 }
 
@@ -323,6 +325,7 @@ function finishGame(isWinner) {
 
 function startGame() {
   stopTimer();
+  document.body.classList.remove("answering", "dimmed");
   state.currentIndex = 0;
   state.locked = false;
   state.lifelines = { fiftyFifty: false, phone: false, audience: false };
