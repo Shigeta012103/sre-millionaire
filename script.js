@@ -5,16 +5,13 @@ const QUESTION_NUMBER_ANIM_MS = 2000;
 const TYPE_CHAR_MS = 90;
 const CHOICE_REVEAL_MS = 1000;
 const CHOICES_START_DELAY_MS = 1000;
-const ANSWER_TIME_SEC = 15;
+const ANSWER_TIME_SEC = 30;
 const TIMER_WARNING_SEC = 5;
 const ANSWERING_RELEASE_MS = 1000;
 const LADDER_HOLD_BEFORE_MS = 900;
 const LADDER_MOVE_MS = 500;
 const LADDER_HOLD_AFTER_MS = 800;
 const YEN_UNIT = 10000;
-const BASE_AUDIENCE_BIAS = 70;
-const BIAS_DECAY_PER_QUESTION = 2.5;
-const MIN_CORRECT_BIAS = 35;
 
 const DEFAULT_PLAYER_NAME = "挑戦者";
 
@@ -52,6 +49,8 @@ const dom = {
 };
 
 const state = {
+  questions: [],
+  currentChoices: [],
   currentIndex: 0,
   answerIndex: 0,
   locked: false,
@@ -59,6 +58,7 @@ const state = {
 };
 
 let timerIntervalId = null;
+let timeRemaining = 0;
 
 // デバッグUIが存在する間はカウントダウンを止める
 const DEBUG_MODE = Boolean(dom.debugButtons);
@@ -90,11 +90,21 @@ function updatePrizeBanner() {
   dom.prizeAmount.textContent = formatYen(securedAmount);
 }
 
+function pickRandom(pool, count) {
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
+function buildQuizSet() {
+  const difficulties = ["easy", "medium", "hard"];
+  return difficulties.flatMap((difficulty) => {
+    const pool = QUIZ_QUESTIONS.filter((question) => question.difficulty === difficulty);
+    return pickRandom(pool, QUESTIONS_PER_DIFFICULTY);
+  });
+}
+
 function buildShuffledChoices(question) {
-  const entries = question.choices.map((text, index) => ({
-    text,
-    isCorrect: index === question.answerIndex,
-  }));
+  const entries = question.choices.map((choice) => ({ ...choice }));
   for (let i = entries.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
     [entries[i], entries[j]] = [entries[j], entries[i]];
@@ -153,9 +163,10 @@ function revealChoices(done) {
 function renderQuestion() {
   state.locked = true;
   setCharacter("neutral");
-  const question = QUIZ_QUESTIONS[state.currentIndex];
+  const question = state.questions[state.currentIndex];
   const entries = buildShuffledChoices(question);
-  state.answerIndex = entries.findIndex((entry) => entry.isCorrect);
+  state.currentChoices = entries;
+  state.answerIndex = entries.findIndex((entry) => entry.correct);
   dom.questionText.textContent = "";
   buildChoiceButtons(entries);
   updatePrizeBanner();
@@ -175,21 +186,37 @@ function getChoiceButtons() {
   return Array.from(dom.choices.querySelectorAll(".choice"));
 }
 
+function tickTimer() {
+  timeRemaining -= 1;
+  dom.timerNum.textContent = String(Math.max(0, timeRemaining));
+  if (timeRemaining <= TIMER_WARNING_SEC) dom.timer.classList.add("warning");
+  if (timeRemaining <= 0) handleTimeout();
+}
+
 function startTimer() {
   if (DEBUG_MODE) return;
-  let remaining = ANSWER_TIME_SEC;
-  dom.timerNum.textContent = String(remaining);
+  timeRemaining = ANSWER_TIME_SEC;
+  dom.timerNum.textContent = String(timeRemaining);
   dom.timer.classList.remove("warning");
   dom.timer.classList.add("active");
+  dom.timerProgress.style.animationPlayState = "";
   dom.timerProgress.classList.remove("run");
   void dom.timerProgress.offsetWidth;
   dom.timerProgress.classList.add("run");
-  timerIntervalId = setInterval(() => {
-    remaining -= 1;
-    dom.timerNum.textContent = String(Math.max(0, remaining));
-    if (remaining <= TIMER_WARNING_SEC) dom.timer.classList.add("warning");
-    if (remaining <= 0) handleTimeout();
-  }, 1000);
+  timerIntervalId = setInterval(tickTimer, 1000);
+}
+
+function pauseTimer() {
+  if (timerIntervalId === null) return;
+  clearInterval(timerIntervalId);
+  timerIntervalId = null;
+  dom.timerProgress.style.animationPlayState = "paused";
+}
+
+function resumeTimer() {
+  if (timerIntervalId !== null || !dom.timer.classList.contains("active") || timeRemaining <= 0) return;
+  dom.timerProgress.style.animationPlayState = "running";
+  timerIntervalId = setInterval(tickTimer, 1000);
 }
 
 function stopTimer() {
@@ -198,6 +225,7 @@ function stopTimer() {
     timerIntervalId = null;
   }
   dom.timer.classList.remove("active");
+  dom.timerProgress.style.animationPlayState = "";
 }
 
 function handleTimeout() {
@@ -281,7 +309,7 @@ function advanceAfterReveal(isCorrect) {
     finishGame(false);
     return;
   }
-  const isFinalQuestion = state.currentIndex === QUIZ_QUESTIONS.length - 1;
+  const isFinalQuestion = state.currentIndex === state.questions.length - 1;
   if (isFinalQuestion) {
     finishGame(true);
     return;
@@ -300,14 +328,9 @@ function disableLifeline(button, key) {
 function useFiftyFifty() {
   if (state.lifelines.fiftyFifty || state.locked) return;
   disableLifeline(dom.fiftyFifty, "fiftyFifty");
-  const answerIndex = state.answerIndex;
-  const wrongIndices = getChoiceButtons()
-    .map((_, index) => index)
-    .filter((index) => index !== answerIndex)
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 2);
   const buttons = getChoiceButtons();
-  wrongIndices.forEach((index) => {
+  state.currentChoices.forEach((choice, index) => {
+    if (choice.keep) return;
     buttons[index].classList.add("eliminated");
     buttons[index].disabled = true;
   });
@@ -316,35 +339,18 @@ function useFiftyFifty() {
 function usePhone() {
   if (state.lifelines.phone || state.locked) return;
   disableLifeline(dom.phone, "phone");
-  openModal("オンコール仲間に電話", `<p>「${QUIZ_QUESTIONS[state.currentIndex].friendHint}」</p>`);
-}
-
-function buildAudienceVotes(answerIndex, questionIndex) {
-  const correctBias = Math.max(MIN_CORRECT_BIAS, BASE_AUDIENCE_BIAS - questionIndex * BIAS_DECAY_PER_QUESTION);
-  const votes = [0, 0, 0, 0];
-  votes[answerIndex] = Math.round(correctBias);
-  let remaining = 100 - votes[answerIndex];
-  const wrongIndices = [0, 1, 2, 3].filter((index) => index !== answerIndex);
-  wrongIndices.forEach((index, position) => {
-    const isLast = position === wrongIndices.length - 1;
-    const share = isLast ? remaining : Math.floor(Math.random() * (remaining / 2));
-    votes[index] = share;
-    remaining -= share;
-  });
-  return votes;
+  openModal("オンコール仲間に電話", `<p>「${state.questions[state.currentIndex].friendHint}」</p>`);
 }
 
 function useAudience() {
   if (state.lifelines.audience || state.locked) return;
   disableLifeline(dom.audience, "audience");
-  const answerIndex = state.answerIndex;
-  const votes = buildAudienceVotes(answerIndex, state.currentIndex);
-  const bars = votes
+  const bars = state.currentChoices
     .map(
-      (pct, index) => `
+      (choice, index) => `
       <div class="audience-bar">
-        <span class="bar-pct">${pct}%</span>
-        <div class="bar" style="height:${pct}%"></div>
+        <span class="bar-pct">${choice.audience}%</span>
+        <div class="bar" style="height:${choice.audience}%"></div>
         <span class="bar-letter">${CHOICE_LABELS[index]}</span>
       </div>`
     )
@@ -353,6 +359,7 @@ function useAudience() {
 }
 
 function openModal(title, bodyHtml) {
+  pauseTimer();
   dom.modalTitle.textContent = title;
   dom.modalBody.innerHTML = bodyHtml;
   dom.modal.classList.remove("hidden");
@@ -360,6 +367,7 @@ function openModal(title, bodyHtml) {
 
 function closeModal() {
   dom.modal.classList.add("hidden");
+  resumeTimer();
 }
 
 function finishGame(isWinner) {
@@ -373,6 +381,7 @@ function startGame() {
   stopTimer();
   document.body.classList.remove("answering", "dimmed");
   dom.ladderOverlay.classList.add("hidden");
+  state.questions = buildQuizSet();
   state.currentIndex = 0;
   state.locked = false;
   state.lifelines = { fiftyFifty: false, phone: false, audience: false };

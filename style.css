@@ -147,7 +147,7 @@ body.dimmed .answer-dim {
 }
 
 .timer.active .timer-progress.run {
-  animation: timer-deplete 15s linear forwards;
+  animation: timer-deplete 30s linear forwards;
 }
 
 .timer-num {
@@ -266,7 +266,7 @@ body.answering .mc-character.mood-suspense {
   }
   to {
     height: 147vh;
-    bottom: -457px;
+    bottom: -567px;
   }
 }
 
@@ -283,7 +283,7 @@ body.answering .mc-character.mood-suspense {
 
 .mc-character.mood-cheer {
   height: 158vh;
-  bottom: -574px;
+  bottom: -712px;
 }
 
 .mc-character.mood-wrong {
@@ -699,8 +699,15 @@ body.answering .mc-character.mood-suspense {
     no-repeat;
 }
 
+/* SP用ロゴ（PCは背景にロゴ入りのため非表示） */
+.start-logo {
+  display: none;
+}
+
 .start-card {
-  margin-bottom: 6vh;
+  max-width: 620px;
+  padding: 22px 36px;
+  margin-bottom: 8vh;
   background: rgba(3, 9, 24, 0.55);
   backdrop-filter: blur(4px);
 }
@@ -743,6 +750,19 @@ body.answering .mc-character.mood-suspense {
 .name-input:focus {
   outline: none;
   box-shadow: 0 0 12px rgba(47, 123, 214, 0.7);
+}
+
+.attribution {
+  margin-top: 22px;
+  font-size: 0.72rem;
+  line-height: 1.8;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.attribution a {
+  color: var(--yellow);
+  text-decoration: underline;
 }
 
 .result-prize {
@@ -897,6 +917,17 @@ body.answering .mc-character.mood-suspense {
   }
   #start-screen {
     background-image: url("assets/start-portrait.jpg");
+    background-size: cover;
+    background-position: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+  }
+  .start-logo {
+    display: block;
+    width: 100%;
+    margin-top: 2vh;
+    pointer-events: none;
   }
   .stage {
     padding: 14px 14px 28px;
