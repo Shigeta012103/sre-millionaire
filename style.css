@@ -147,7 +147,7 @@ body.dimmed .answer-dim {
 }
 
 .timer.active .timer-progress.run {
-  animation: timer-deplete 30s linear forwards;
+  animation: timer-deplete 15s linear forwards;
 }
 
 .timer-num {
@@ -326,7 +326,7 @@ body.answering .mc-character.mood-suspense {
   font-weight: 800;
   font-size: clamp(1rem, 4vw, 1.7rem);
   line-height: 1.5;
-  color: var(--orange);
+  color: #ffffff;
   transition: color 0.5s ease;
 }
 
@@ -841,6 +841,94 @@ body.answering .mc-character.mood-suspense {
 
 .hidden {
   display: none !important;
+}
+
+/* ===== 結果画面のランキングリンク ===== */
+.ranking-link {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--yellow);
+  text-decoration: underline;
+}
+
+/* ===== ランキングページ ===== */
+.ranking-body {
+  overflow: auto;
+  min-height: 100vh;
+}
+
+.ranking-wrap {
+  position: relative;
+  z-index: 2;
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 48px 20px 64px;
+  text-align: center;
+}
+
+.ranking-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--yellow-bright);
+  text-shadow: 0 2px 16px rgba(247, 208, 56, 0.45);
+}
+
+.ranking-rule {
+  margin: 10px 0 28px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.rank-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.rank-row {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 18px;
+  background: linear-gradient(160deg, var(--panel-from), var(--panel-to));
+  border: 2px solid rgba(174, 188, 203, 0.45);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.rank-pos {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--yellow);
+  text-align: center;
+}
+
+.rank-name {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-correct {
+  font-weight: 700;
+  color: var(--silver-bright);
+}
+
+.rank-time {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.rank-empty {
+  margin-bottom: 32px;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* デバッグ用: 状態表示＋手動切替（再有効化する場合は下記コメントを外し、index.html と script.js の対応箇所も戻す）
