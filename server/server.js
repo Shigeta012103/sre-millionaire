@@ -5,11 +5,12 @@ const path = require("path");
 const { WebSocketServer } = require("ws");
 const QRCode = require("qrcode");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5180;
 const ROOT = path.join(__dirname, "..");
 const DATA_FILE = path.join(__dirname, "scores.json");
 const MAX_ITEMS = 50;
 const MAX_NAME_LENGTH = 20;
+const MAX_COMPANY_LENGTH = 30;
 const MAX_CORRECT = 100;
 const MAX_TIME_SEC = 100000;
 const NGROK_API = "http://127.0.0.1:4040/api/tunnels";
@@ -65,9 +66,10 @@ app.get("/api/ranking", (req, res) => {
 });
 
 app.post("/api/ranking", (req, res) => {
-  const { name, correct, time } = req.body || {};
+  const { name, company, correct, time } = req.body || {};
   const entry = {
     name: String(name ?? "").trim().slice(0, MAX_NAME_LENGTH) || "挑戦者",
+    company: String(company ?? "").trim().slice(0, MAX_COMPANY_LENGTH),
     correct: clampInt(correct, 0, MAX_CORRECT),
     time: clampInt(time, 0, MAX_TIME_SEC),
     ts: Date.now(),

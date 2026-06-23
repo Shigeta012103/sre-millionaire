@@ -752,6 +752,17 @@ body.answering .mc-character.mood-suspense {
   box-shadow: 0 0 12px rgba(47, 123, 214, 0.7);
 }
 
+.name-input + .name-input {
+  margin-top: -12px;
+}
+
+.rank-note {
+  margin: 0 0 22px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--yellow-bright);
+}
+
 .attribution {
   margin-top: 22px;
   font-size: 0.72rem;
@@ -909,10 +920,53 @@ body.answering .mc-character.mood-suspense {
 }
 
 .rank-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rank-player {
   font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.rank-company {
+  font-size: 0.82em;
+  color: var(--silver-bright);
+  opacity: 0.85;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 上位3位を強調 */
+.rank-row.rank-1 {
+  border-color: var(--yellow);
+  background: linear-gradient(160deg, rgba(247, 208, 56, 0.28), rgba(3, 9, 24, 0.6));
+  box-shadow: 0 0 18px rgba(247, 208, 56, 0.45);
+}
+
+.rank-row.rank-2 {
+  border-color: #cdd9e6;
+  background: linear-gradient(160deg, rgba(205, 217, 230, 0.22), rgba(3, 9, 24, 0.6));
+}
+
+.rank-row.rank-3 {
+  border-color: #d8985a;
+  background: linear-gradient(160deg, rgba(216, 152, 90, 0.22), rgba(3, 9, 24, 0.6));
+}
+
+.rank-row.rank-1 .rank-pos,
+.rank-row.rank-2 .rank-pos,
+.rank-row.rank-3 .rank-pos {
+  font-size: 1.5em;
+}
+
+.rank-row.rank-1 .rank-player {
+  font-size: 1.15em;
+  color: var(--yellow-bright);
 }
 
 .rank-correct {

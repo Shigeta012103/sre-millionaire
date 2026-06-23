@@ -17,15 +17,16 @@ cd server
 npm install
 
 # 2. サーバ起動（別ターミナルでも可）
-npm start            # http://localhost:3000
+npm start            # http://localhost:5180
+# ポートを変えたい場合: PORT=3456 npm start
 
-# 3. 公開トンネルを起動（どちらか）
-ngrok http 3000
+# 3. 公開トンネルを起動（どちらか／ポートはサーバに合わせる）
+ngrok http 5180
 #   または警告ページなしの cloudflared:
-# cloudflared tunnel --url http://localhost:3000
+# cloudflared tunnel --url http://localhost:5180
 ```
 
-- モニター（会場PC）で **http://localhost:3000/display.html** を開く → ランキング＋QRを表示
+- モニター（会場PC）で **http://localhost:5180/display.html** を開く → ランキング＋QRを表示
 - QR は ngrok の公開URLを指す（`PUBLIC_URL` 環境変数で明示指定も可）
 - 参加者は QR を読み取り、各自のスマホでプレイ。終了すると結果がモニターに即反映される
 

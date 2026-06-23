@@ -18,20 +18,26 @@ function sortEntries(entries) {
   );
 }
 
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+function rankRowHtml(entry, index) {
+  const topClass = index < 3 ? ` rank-${index + 1}` : "";
+  const pos = index < 3 ? MEDALS[index] : index + 1;
+  const company = entry.company
+    ? `<span class="rank-company">${escapeHtml(entry.company)}</span>`
+    : "";
+  return `
+    <li class="rank-row${topClass}">
+      <span class="rank-pos">${pos}</span>
+      <span class="rank-name"><span class="rank-player">${escapeHtml(entry.name)}</span>${company}</span>
+      <span class="rank-correct">${entry.correct}問正解</span>
+      <span class="rank-time">${formatTime(entry.time)}</span>
+    </li>`;
+}
+
 function renderRanking(entries) {
   const list = document.getElementById("rank-list");
-  list.innerHTML = entries
-    .slice(0, RANK_LIMIT)
-    .map(
-      (entry, index) => `
-      <li class="rank-row">
-        <span class="rank-pos">${index + 1}</span>
-        <span class="rank-name">${escapeHtml(entry.name)}</span>
-        <span class="rank-correct">${entry.correct}問正解</span>
-        <span class="rank-time">${formatTime(entry.time)}</span>
-      </li>`
-    )
-    .join("");
+  list.innerHTML = entries.slice(0, RANK_LIMIT).map(rankRowHtml).join("");
 }
 
 function showEmpty(message) {

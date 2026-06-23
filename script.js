@@ -33,6 +33,7 @@ const dom = {
   prizeAmount: document.getElementById("prize-amount"),
   playerName: document.getElementById("player-name"),
   nameInput: document.getElementById("player-name-input"),
+  companyInput: document.getElementById("company-input"),
   fiftyFifty: document.getElementById("lifeline-5050"),
   phone: document.getElementById("lifeline-phone"),
   audience: document.getElementById("lifeline-audience"),
@@ -54,6 +55,7 @@ const state = {
   currentIndex: 0,
   answerIndex: 0,
   locked: false,
+  company: "",
   totalTimeSec: 0,
   lastAnswerSec: 0,
   lifelines: { fiftyFifty: false, phone: false, audience: false },
@@ -374,9 +376,9 @@ function closeModal() {
   resumeTimer();
 }
 
-function submitScore(name, correct, timeSec) {
+function submitScore(name, company, correct, timeSec) {
   if (!RANKING_API_URL) return;
-  const entry = { name, correct, time: timeSec };
+  const entry = { name, company, correct, time: timeSec };
   fetch(RANKING_API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -390,7 +392,7 @@ function finishGame(isWinner) {
   dom.resultTitle.textContent = isWinner ? "🎉 全問正解！" : "ゲームオーバー";
   dom.resultPrize.textContent = `獲得賞金: ${prize === 0 ? "0円" : formatPrize(prize)}`;
   dom.resultScreen.classList.remove("hidden");
-  submitScore(dom.playerName.textContent, correctCount, state.totalTimeSec);
+  submitScore(dom.playerName.textContent, state.company, correctCount, state.totalTimeSec);
 }
 
 function startGame() {
@@ -403,6 +405,7 @@ function startGame() {
   state.totalTimeSec = 0;
   state.lifelines = { fiftyFifty: false, phone: false, audience: false };
   dom.playerName.textContent = dom.nameInput.value.trim() || DEFAULT_PLAYER_NAME;
+  state.company = dom.companyInput.value.trim();
   [dom.fiftyFifty, dom.phone, dom.audience].forEach((button) => {
     button.classList.remove("used");
     button.disabled = false;
