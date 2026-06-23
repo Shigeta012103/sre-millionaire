@@ -931,6 +931,85 @@ body.answering .mc-character.mood-suspense {
   color: rgba(255, 255, 255, 0.8);
 }
 
+/* ===== モニター表示（display.html） ===== */
+.display-body {
+  overflow: hidden;
+  min-height: 100vh;
+}
+
+.display-wrap {
+  position: relative;
+  z-index: 2;
+  height: 100vh;
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 32px;
+  align-items: center;
+  padding: 40px 48px;
+}
+
+.display-ranking {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.display-ranking .ranking-title {
+  margin-bottom: 18px;
+}
+
+.display-ranking .rank-list {
+  flex: 1;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+.display-ranking .rank-row {
+  font-size: clamp(1rem, 2.2vh, 1.6rem);
+}
+
+.display-qr {
+  text-align: center;
+  background: linear-gradient(160deg, var(--panel-from), var(--panel-to));
+  border: 3px solid var(--silver);
+  border-radius: 18px;
+  padding: 32px 28px;
+  box-shadow: 0 0 40px rgba(47, 123, 214, 0.4);
+}
+
+.qr-caption {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--yellow-bright);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.qr-img {
+  width: 100%;
+  max-width: 320px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.qr-url {
+  margin-top: 14px;
+  font-size: 0.8rem;
+  word-break: break-all;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 760px) {
+  .display-wrap {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 100vh;
+  }
+}
+
 /* デバッグ用: 状態表示＋手動切替（再有効化する場合は下記コメントを外し、index.html と script.js の対応箇所も戻す）
 .debug-state {
   position: fixed;

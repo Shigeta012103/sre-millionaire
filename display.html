@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>モニター | SRE クイズ・ミリオネア</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="display-body">
+    <main class="display-wrap">
+      <section class="display-ranking">
+        <h1 class="ranking-title">ランキング</h1>
+        <ol class="rank-list" id="rank-list"></ol>
+        <p class="rank-empty" id="rank-empty">まだ記録がありません</p>
+      </section>
+
+      <aside class="display-qr">
+        <p class="qr-caption">QRを読み取って<br />スマホでプレイ！</p>
+        <img class="qr-img" id="qr-img" src="/api/qr" alt="参加用QRコード" />
+        <p class="qr-url" id="qr-url"></p>
+      </aside>
+    </main>
+
+    <script src="display.js"></script>
+  </body>
+</html>
