@@ -13,7 +13,7 @@ const MAX_NAME_LENGTH = 20;
 const MAX_COMPANY_LENGTH = 30;
 const MAX_CORRECT = 100;
 const MAX_TIME_SEC = 100000;
-const NGROK_API = "http://127.0.0.1:4040/api/tunnels";
+const NGROK_INSPECT_PORTS = [4040, 4041, 4042, 4043];
 
 function clampInt(value, min, max) {
   const num = Math.floor(Number(value));
@@ -41,16 +41,29 @@ function ranking() {
     .slice(0, MAX_ITEMS);
 }
 
+function matchesThisPort(tunnel) {
+  const addr = tunnel?.config?.addr ?? "";
+  return addr.endsWith(`:${PORT}`);
+}
+
+// 複数の ngrok が起動している場合、検査API(4040〜)は先勝ちで別エージェントが占有する。
+// 検査ポートを走査し「このサーバのポート(PORT)に向いたトンネル」を選ぶ。
 async function getPublicUrl() {
   if (process.env.PUBLIC_URL) return process.env.PUBLIC_URL;
-  try {
-    const response = await fetch(NGROK_API);
-    const data = await response.json();
-    const tunnel = data.tunnels.find((t) => t.proto === "https") || data.tunnels[0];
-    return tunnel ? tunnel.public_url : null;
-  } catch {
-    return null;
+  for (const port of NGROK_INSPECT_PORTS) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/api/tunnels`);
+      const data = await response.json();
+      const tunnels = data.tunnels ?? [];
+      const match =
+        tunnels.find((t) => matchesThisPort(t) && t.proto === "https") ||
+        tunnels.find((t) => matchesThisPort(t));
+      if (match) return match.public_url;
+    } catch {
+      // この検査ポートは未使用 → 次へ
+    }
   }
+  return null;
 }
 
 const app = express();
@@ -81,11 +94,13 @@ app.post("/api/ranking", (req, res) => {
 });
 
 app.get("/api/public-url", async (req, res) => {
+  res.set("Cache-Control", "no-store");
   res.json({ url: await getPublicUrl() });
 });
 
 app.get("/api/qr", async (req, res) => {
   const url = await getPublicUrl();
+  res.set("Cache-Control", "no-store");
   if (!url) return res.status(404).send("public url not found");
   res.type("png");
   QRCode.toFileStream(res, url, { width: 360, margin: 1 });
